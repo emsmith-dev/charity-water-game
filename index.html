@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charity:Water Game</title>
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>Charity:Water - Droplet Sort</h1>
+            <p>Swipe droplets into the correct bucket before time runs out!</p>
+        </header>
+        <div id="score-timer">
+            <span id="score">Score: 0</span>
+            <span id="timer">Time: 30</span>
+        </div>
+        <div id="buckets">
+            <div id="clean-bucket" class="bucket">Clean Water</div>
+            <div id="dirty-bucket" class="bucket">Dirty Water</div>
+        </div>
+        <canvas id="droplet-canvas"></canvas>
+        <div id="game-over" style="display:none;">
+            <h2>Game Over!</h2>
+            <p id="final-score"></p>
+            <button onclick="startGame()">Play Again</button>
+        </div>
+    </div>
+    <script src="assets/game.js"></script>
+</body>
+</html>
