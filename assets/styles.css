@@ -30,29 +30,40 @@ header {
 #buckets {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 10px 10px 10px;
+    z-index: 2;
 }
 .bucket {
     width: 45%;
-    height: 60px;
-    background: #b3e5fc;
-    border-radius: 0 0 30px 30px;
+    height: 80px;
+    background: transparent;
+    border: none;
     display: flex;
-    justify-content: center;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    user-select: none;
+    position: relative;
+}
+.jerrycan {
+    width: 60px;
+    height: 70px;
+    display: block;
+    margin-bottom: 2px;
+}
+.bucket-label {
     font-weight: bold;
     font-size: 1em;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: 2px solid #0288d1;
-    user-select: none;
-}
-#clean-bucket {
-    background: #b3e5fc;
-    border-color: #0288d1;
-}
-#dirty-bucket {
-    background: #ffe082;
-    border-color: #fbc02d;
+    color: #333;
+    background: rgba(255,255,255,0.8);
+    border-radius: 8px;
+    padding: 2px 8px;
+    margin-top: -8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 #droplet-canvas {
     width: 100%;

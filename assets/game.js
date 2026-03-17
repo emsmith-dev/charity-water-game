@@ -9,8 +9,8 @@ const gameOverEl = document.getElementById('game-over');
 const finalScoreEl = document.getElementById('final-score');
 
 const BUCKETS = {
-    clean: { x: 0.1, w: 0.35, color: '#b3e5fc' },
-    dirty: { x: 0.55, w: 0.35, color: '#ffe082' }
+    clean: { x: 0.1, w: 0.35 },
+    dirty: { x: 0.55, w: 0.35 }
 };
 const DROPLET_RADIUS = 22;
 const DROPLET_TYPES = ['clean', 'dirty'];
@@ -67,21 +67,8 @@ function drawDroplet(d) {
     }
 }
 
-function drawBuckets() {
-    // Buckets are visually in the DOM, but draw drop zones for feedback
-    Object.entries(BUCKETS).forEach(([type, b]) => {
-        ctx.save();
-        ctx.globalAlpha = 0.15;
-        ctx.fillStyle = b.color;
-        ctx.fillRect(
-            b.x * canvas.width,
-            canvas.height - 70,
-            b.w * canvas.width,
-            70
-        );
-        ctx.restore();
-    });
-}
+// Buckets are visually in the DOM, so no need to draw them on canvas
+function drawBuckets() {}
 
 function moveDroplets() {
     for (let d of droplets) {
@@ -153,16 +140,27 @@ function handlePointerUp(e) {
     if (bucket) {
         if (bucket === draggingDroplet.type) {
             score++;
+            playSplash();
+            // Remove droplet and spawn a new one
+            droplets = droplets.filter(d => d !== draggingDroplet);
+            setTimeout(() => {
+                droplets.push(randomDroplet());
+            }, 150); // slight delay for feedback
         } else {
             score = Math.max(0, score - 1);
         }
-        // Remove droplet and spawn a new one
-        droplets = droplets.filter(d => d !== draggingDroplet);
-        droplets.push(randomDroplet());
     }
     draggingDroplet.grabbed = false;
     draggingDroplet = null;
     updateScore();
+}
+// Play splash sound for feedback
+function playSplash() {
+    const splash = document.getElementById('splash-sound');
+    if (splash) {
+        splash.currentTime = 0;
+        splash.play();
+    }
 }
 
 function updateScore() {

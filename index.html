@@ -17,8 +17,14 @@
             <span id="timer">Time: 30</span>
         </div>
         <div id="buckets">
-            <div id="clean-bucket" class="bucket">Clean Water</div>
-            <div id="dirty-bucket" class="bucket">Dirty Water</div>
+            <div id="clean-bucket" class="bucket">
+                <img src="assets/jerrycan-yellow.svg" alt="Clean Jerry Can" class="jerrycan">
+                <span class="bucket-label">Clean Water</span>
+            </div>
+            <div id="dirty-bucket" class="bucket">
+                <img src="assets/jerrycan-yellow.svg" alt="Dirty Jerry Can" class="jerrycan">
+                <span class="bucket-label">Dirty Water</span>
+            </div>
         </div>
         <canvas id="droplet-canvas"></canvas>
         <div id="game-over" style="display:none;">
@@ -27,6 +33,7 @@
             <button onclick="startGame()">Play Again</button>
         </div>
     </div>
+    <audio id="splash-sound" src="assets/splash.mp3" preload="auto"></audio>
     <script src="assets/game.js"></script>
 </body>
 </html>
