@@ -17,14 +17,14 @@ const DROPLET_TYPES = ['clean', 'dirty'];
 
 // Difficulty settings
 const DIFFICULTY_SETTINGS = {
-    easy:   { time: 40, dropletCount: 6, winScore: 10, label: 'Easy' },
-    normal: { time: 30, dropletCount: 8, winScore: 16, label: 'Normal' },
-    hard:   { time: 18, dropletCount: 10, winScore: 24, label: 'Hard' }
+    easy:   { time: 40, speed: 1, winScore: 10, label: 'Easy' },
+    normal: { time: 30, speed: 1.7, winScore: 16, label: 'Normal' },
+    hard:   { time: 18, speed: 2.5, winScore: 24, label: 'Hard' }
 };
 
 let currentDifficulty = 'normal';
 let GAME_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
-let DROPLET_COUNT = DIFFICULTY_SETTINGS[currentDifficulty].dropletCount;
+const DROPLET_COUNT = 50;
 let WIN_SCORE = DIFFICULTY_SETTINGS[currentDifficulty].winScore;
 
 let droplets = [];
@@ -68,11 +68,13 @@ function resizeCanvas() {
 
 function randomDroplet() {
     const type = DROPLET_TYPES[Math.random() < 0.5 ? 0 : 1];
+    // Speed multiplier based on difficulty
+    const speed = DIFFICULTY_SETTINGS[currentDifficulty].speed;
     return {
         x: Math.random() * (canvas.width - 2 * DROPLET_RADIUS) + DROPLET_RADIUS,
         y: Math.random() * (canvas.height - 2 * DROPLET_RADIUS) + DROPLET_RADIUS,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
+        vx: (Math.random() - 0.5) * 1.5 * speed,
+        vy: (Math.random() - 0.5) * 1.5 * speed,
         type,
         grabbed: false
     };
@@ -123,8 +125,22 @@ function moveDroplets() {
             d.x += d.vx;
             d.y += d.vy;
             // bounce off walls
-            if (d.x < DROPLET_RADIUS || d.x > canvas.width - DROPLET_RADIUS) d.vx *= -1;
-            if (d.y < DROPLET_RADIUS || d.y > canvas.height - DROPLET_RADIUS - 70) d.vy *= -1;
+            if (d.x < DROPLET_RADIUS) {
+                d.x = DROPLET_RADIUS;
+                d.vx *= -1;
+            }
+            if (d.x > canvas.width - DROPLET_RADIUS) {
+                d.x = canvas.width - DROPLET_RADIUS;
+                d.vx *= -1;
+            }
+            if (d.y < DROPLET_RADIUS) {
+                d.y = DROPLET_RADIUS;
+                d.vy *= -1;
+            }
+            if (d.y > canvas.height - DROPLET_RADIUS) {
+                d.y = canvas.height - DROPLET_RADIUS;
+                d.vy *= -1;
+            }
         }
     }
 }
@@ -145,11 +161,20 @@ function pointInDroplet(x, y, d) {
 }
 
 function getBucketAt(x, y) {
-    for (let [type, b] of Object.entries(BUCKETS)) {
-        const bx = b.x * canvas.width;
-        const bw = b.w * canvas.width;
-        const by = canvas.height - 70;
-        if (x > bx && x < bx + bw && y > by) return type;
+    // Convert canvas coordinates to page coordinates
+    const canvasRect = canvas.getBoundingClientRect();
+    const pageX = x / canvas.width * canvasRect.width + canvasRect.left;
+    const pageY = y / canvas.height * canvasRect.height + canvasRect.top;
+    for (const type of ['clean', 'dirty']) {
+        const bucketEl = document.getElementById(type + '-bucket');
+        if (!bucketEl) continue;
+        const rect = bucketEl.getBoundingClientRect();
+        if (
+            pageX >= rect.left && pageX <= rect.right &&
+            pageY >= rect.top && pageY <= rect.bottom
+        ) {
+            return type;
+        }
     }
     return null;
 }
@@ -232,7 +257,7 @@ function startGame() {
         currentDifficulty = difficultySelect.value;
     }
     GAME_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
-    DROPLET_COUNT = DIFFICULTY_SETTINGS[currentDifficulty].dropletCount;
+    // DROPLET_COUNT is now always 50
     WIN_SCORE = DIFFICULTY_SETTINGS[currentDifficulty].winScore;
     score = 0;
     timer = GAME_TIME;

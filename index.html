@@ -24,6 +24,7 @@
             <span id="score">Score: 0</span>
             <span id="timer">Time: 30</span>
         </div>
+        <canvas id="droplet-canvas"></canvas>
         <div id="buckets">
             <div id="clean-bucket" class="bucket">
                 <img src="assets/jerrycan-yellow.svg" alt="Clean Jerry Can" class="jerrycan">
@@ -34,7 +35,6 @@
                 <span class="bucket-label">Dirty Water</span>
             </div>
         </div>
-        <canvas id="droplet-canvas"></canvas>
         <div id="game-over" style="display:none;">
             <h2>Game Over!</h2>
             <p id="final-score"></p>
@@ -42,13 +42,12 @@
         </div>
     </div>
     <audio id="splash-sound" src="assets/splash.mp3" preload="auto"></audio>
-    <footer id="footer" style="text-align:center; padding: 18px 0 10px 0; background: rgba(255,255,255,0.92); font-size: 1em; color: #005baa; position:relative; z-index:10;">
+    <footer id="footer">
         <span>
             <strong>Support </strong>
-            <a href="https://www.charitywater.org/" target="_blank" rel="noopener" style="color:#005baa; text-decoration:underline; font-weight:600;">charity: water</a>
-            &nbsp;|&nbsp;
-            <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener" style="color:#ffd600; text-decoration:underline; font-weight:700;">Donate Now</a>
+            <a href="https://www.charitywater.org/" target="_blank" rel="noopener">charity: water</a>
         </span>
+        <a href="https://www.charitywater.org/donate" target="_blank" rel="noopener" id="donate-btn">Donate Now</a>
     </footer>
     <script src="assets/game.js"></script>
 </body>
