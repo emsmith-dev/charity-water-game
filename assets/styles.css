@@ -1,3 +1,30 @@
+/* Footer styles */
+#footer {
+    width: 100vw;
+    background: rgba(255,255,255,0.92);
+    color: #005baa;
+    text-align: center;
+    font-size: 1em;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 18px 0 10px 0;
+    box-shadow: 0 -2px 12px #ffd60022;
+}
+#footer a {
+    color: #005baa;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+#footer a:hover {
+    color: #ffd600;
+}
 body {
     margin: 0;
     padding: 0;

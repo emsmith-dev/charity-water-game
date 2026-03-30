@@ -156,8 +156,8 @@ function getBucketAt(x, y) {
 
 function handlePointerDown(e) {
     const rect = canvas.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    const x = ((e.touches ? e.touches[0].clientX : e.clientX) - rect.left) * (canvas.width / rect.width);
+    const y = ((e.touches ? e.touches[0].clientY : e.clientY) - rect.top) * (canvas.height / rect.height);
     for (let d of droplets) {
         if (pointInDroplet(x, y, d)) {
             draggingDroplet = d;
@@ -172,8 +172,8 @@ function handlePointerDown(e) {
 function handlePointerMove(e) {
     if (!draggingDroplet) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    const x = ((e.touches ? e.touches[0].clientX : e.clientX) - rect.left) * (canvas.width / rect.width);
+    const y = ((e.touches ? e.touches[0].clientY : e.clientY) - rect.top) * (canvas.height / rect.height);
     draggingDroplet.x = x - dragOffset.x;
     draggingDroplet.y = y - dragOffset.y;
 }
@@ -181,15 +181,17 @@ function handlePointerMove(e) {
 function handlePointerUp(e) {
     if (!draggingDroplet) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - rect.left;
-    const y = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - rect.top;
+    const x = ((e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - rect.left) * (canvas.width / rect.width);
+    const y = ((e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - rect.top) * (canvas.height / rect.height);
     const bucket = getBucketAt(x, y);
     if (bucket) {
         if (bucket === draggingDroplet.type) {
             score++;
             playSplash();
-            // Remove droplet and spawn a new one
-            droplets = droplets.filter(d => d !== draggingDroplet);
+            // Remove droplet and spawn a new one, animate DOM droplet for feedback only
+            const idx = droplets.indexOf(draggingDroplet);
+            createDropletDOM(draggingDroplet.x, draggingDroplet.y, draggingDroplet.type);
+            droplets.splice(idx, 1);
             setTimeout(() => {
                 droplets.push(randomDroplet());
             }, 150); // slight delay for feedback
@@ -263,9 +265,23 @@ function endGame(won = false) {
     }
 }
 
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    spawnDroplets();
+    score = 0;
+    timer = GAME_TIME;
+    updateScore();
+    updateTimer();
+});
 window.addEventListener('orientationchange', () => {
-    setTimeout(resizeCanvas, 200);
+    setTimeout(() => {
+        resizeCanvas();
+        spawnDroplets();
+        score = 0;
+        timer = GAME_TIME;
+        updateScore();
+        updateTimer();
+    }, 200);
 });
 canvas.addEventListener('mousedown', handlePointerDown);
 canvas.addEventListener('mousemove', handlePointerMove);
@@ -288,3 +304,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Expose startGame for Play Again button
 window.startGame = startGame;
+
+// Only used for disappear animation
+function createDropletDOM(x, y, type) {
+    const el = document.createElement('div');
+    el.className = 'droplet-dom';
+    el.style.position = 'absolute';
+    el.style.pointerEvents = 'none';
+    el.style.transition = 'opacity 0.25s, transform 0.25s';
+    el.style.opacity = '1';
+    el.style.zIndex = '10';
+    el.style.left = (canvas.offsetLeft + x - DROPLET_RADIUS) + 'px';
+    el.style.top = (canvas.offsetTop + y - DROPLET_RADIUS) + 'px';
+    el.style.width = (DROPLET_RADIUS * 2) + 'px';
+    el.style.height = (DROPLET_RADIUS * 2) + 'px';
+    el.style.background = type === 'clean' ? 'rgba(0,91,170,0.12)' : 'rgba(141,110,99,0.12)';
+    el.style.borderRadius = '50%';
+    el.style.boxShadow = type === 'clean' ? '0 0 16px 4px #ffd60055' : '0 0 10px 2px #bcaaa455';
+    gameContainer.appendChild(el);
+    setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transform = 'scale(1.3)';
+        setTimeout(() => el.remove(), 250);
+    }, 10);
+}
