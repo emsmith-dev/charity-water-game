@@ -1,31 +1,72 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #e0f7fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f7f7f7 0%, #eaf6fb 100%);
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
 }
 #game-container {
     background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-    width: 95vw;
-    max-width: 400px;
-    padding: 20px 10px 10px 10px;
-    position: relative;
+    border-radius: 0;
+    box-shadow: none;
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    z-index: 1;
+}
+
+#difficulty-select-container {
+    margin-bottom: 14px;
+}
+
+#win-condition {
+    font-size: 1.08em;
+    color: #005baa;
+    margin-bottom: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
 }
 header {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+header h1 {
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-size: 1.45em;
+    color: #005baa;
+    font-weight: 800;
+    margin-bottom: 2px;
+    letter-spacing: 0.01em;
+}
+header p {
+    color: #757575;
+    font-size: 1em;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 #score-timer {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 1.1em;
+    margin-bottom: 12px;
+    font-size: 1.13em;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    color: #005baa;
+    font-weight: 600;
 }
 #buckets {
     display: flex;
@@ -34,8 +75,11 @@ header {
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 0 10px 10px 10px;
+    padding: 0 10vw 2vw 10vw;
     z-index: 2;
+    width: 80vw;
+    margin: 0 auto;
+    max-width: 600px;
 }
 .bucket {
     width: 45%;
@@ -54,47 +98,113 @@ header {
     height: 70px;
     display: block;
     margin-bottom: 2px;
+    filter: drop-shadow(0 2px 6px #ffd60055);
 }
 .bucket-label {
-    font-weight: bold;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
     font-size: 1em;
-    color: #333;
-    background: rgba(255,255,255,0.8);
+    color: #005baa;
+    background: #fffde7;
     border-radius: 8px;
-    padding: 2px 8px;
+    padding: 2px 10px;
     margin-top: -8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    box-shadow: 0 1px 4px #ffd60033;
+    border: 1.5px solid #ffd600;
 }
 #droplet-canvas {
-    width: 100%;
-    height: 350px;
-    background: #e1f5fe;
-    border-radius: 12px;
+    width: 100vw;
+    height: calc(100vh - 260px);
+    min-height: 120px;
+    max-height: none;
+    background: linear-gradient(180deg, #eaf6fb 60%, #fffde7 100%);
+    border-radius: 0;
     display: block;
-    margin: 0 auto 10px auto;
+    margin: 0;
     touch-action: none;
+    box-shadow: none;
+    border: none;
+    flex: 1 1 auto;
 }
 #game-over {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.98);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border-radius: 16px;
+    border-radius: 20px;
+    border: 2px solid #ffd600;
+    box-shadow: 0 2px 12px #ffd60022;
 }
 button {
-    background: #0288d1;
-    color: #fff;
+    background: #ffd600;
+    color: #005baa;
     border: none;
     border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 1em;
-    margin-top: 10px;
+    padding: 10px 22px;
+    font-size: 1.08em;
+    margin-top: 12px;
     cursor: pointer;
-    transition: background 0.2s;
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 8px #ffd60033;
+    transition: background 0.2s, color 0.2s;
 }
 button:hover {
-    background: #01579b;
+    background: #fffde7;
+    color: #005baa;
+    border: 1.5px solid #ffd600;
+}
+
+/* Google Fonts Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+/* Responsive styles */
+@media (max-width: 600px) {
+    #game-container {
+        border-radius: 0;
+        padding: 0;
+    }
+    header h1 {
+        font-size: 1.1em;
+    }
+    #droplet-canvas {
+        height: calc(100vh - 260px);
+        min-height: 80px;
+        border-radius: 0;
+    }
+    .jerrycan {
+        width: 44px;
+        height: 52px;
+    }
+    .bucket-label {
+        font-size: 0.95em;
+        padding: 2px 7px;
+    }
+    #buckets {
+        padding: 0 2vw 6px 2vw;
+        width: 100vw;
+        max-width: none;
+    }
+    button {
+        font-size: 0.98em;
+        padding: 8px 12px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+    #game-container {
+        border-radius: 0;
+        max-width: none;
+        padding: 0;
+    }
+    #droplet-canvas {
+        height: calc(100vh - 260px);
+        min-height: 120px;
+        max-height: none;
+        border-radius: 0;
+    }
 }

@@ -14,8 +14,18 @@ const BUCKETS = {
 };
 const DROPLET_RADIUS = 22;
 const DROPLET_TYPES = ['clean', 'dirty'];
-const GAME_TIME = 30; // seconds
-const DROPLET_COUNT = 8;
+
+// Difficulty settings
+const DIFFICULTY_SETTINGS = {
+    easy:   { time: 40, dropletCount: 6, winScore: 10, label: 'Easy' },
+    normal: { time: 30, dropletCount: 8, winScore: 16, label: 'Normal' },
+    hard:   { time: 18, dropletCount: 10, winScore: 24, label: 'Hard' }
+};
+
+let currentDifficulty = 'normal';
+let GAME_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
+let DROPLET_COUNT = DIFFICULTY_SETTINGS[currentDifficulty].dropletCount;
+let WIN_SCORE = DIFFICULTY_SETTINGS[currentDifficulty].winScore;
 
 let droplets = [];
 let score = 0;
@@ -24,9 +34,36 @@ let gameInterval, timerInterval;
 let draggingDroplet = null;
 let dragOffset = { x: 0, y: 0 };
 
+const difficultySelect = document.getElementById('difficulty-select');
+const gameContainer = document.getElementById('game-container');
+
+// Add win condition and difficulty display
+let winCondEl = document.getElementById('win-condition');
+if (!winCondEl) {
+    winCondEl = document.createElement('div');
+    winCondEl.id = 'win-condition';
+    winCondEl.style.textAlign = 'center';
+    winCondEl.style.marginBottom = '8px';
+    gameContainer.insertBefore(winCondEl, gameContainer.querySelector('header'));
+}
+
 function resizeCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Fill the viewport except for UI above/below
+    const dpr = window.devicePixelRatio || 1;
+    // Calculate available height for canvas
+    const containerRect = gameContainer.getBoundingClientRect();
+    const buckets = document.getElementById('buckets');
+    const bucketsRect = buckets.getBoundingClientRect();
+    const uiAbove = canvas.offsetTop;
+    const uiBelow = containerRect.bottom - bucketsRect.top + 10;
+    const height = window.innerHeight - uiAbove - uiBelow;
+    const width = window.innerWidth;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
 }
 
 function randomDroplet() {
@@ -52,16 +89,26 @@ function drawDroplet(d) {
     ctx.save();
     ctx.beginPath();
     ctx.arc(d.x, d.y, DROPLET_RADIUS, 0, 2 * Math.PI);
-    ctx.fillStyle = d.type === 'clean' ? '#03a9f4' : '#8d6e63';
-    ctx.shadowColor = d.type === 'clean' ? '#b3e5fc' : '#bcaaa4';
-    ctx.shadowBlur = 10;
+    // Charity:Water blue and brown
+    ctx.fillStyle = d.type === 'clean' ? '#005baa' : '#8d6e63';
+    ctx.shadowColor = d.type === 'clean' ? '#ffd600' : '#bcaaa4';
+    ctx.shadowBlur = d.type === 'clean' ? 16 : 10;
     ctx.fill();
+    // Add yellow highlight for clean droplets
+    if (d.type === 'clean') {
+        ctx.beginPath();
+        ctx.arc(d.x - 7, d.y - 7, DROPLET_RADIUS / 2.2, 0, 2 * Math.PI);
+        ctx.globalAlpha = 0.18;
+        ctx.fillStyle = '#ffd600';
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    }
     ctx.restore();
     // highlight if grabbed
     if (d.grabbed) {
         ctx.beginPath();
         ctx.arc(d.x, d.y, DROPLET_RADIUS + 4, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#ff9800';
+        ctx.strokeStyle = '#ffd600';
         ctx.lineWidth = 3;
         ctx.stroke();
     }
@@ -165,13 +212,26 @@ function playSplash() {
 
 function updateScore() {
     scoreEl.textContent = `Score: ${score}`;
+    // Show win message if reached
+    if (score >= WIN_SCORE) {
+        endGame(true);
+    }
 }
+
 
 function updateTimer() {
     timerEl.textContent = `Time: ${timer}`;
 }
 
+
 function startGame() {
+    // Get difficulty from select
+    if (difficultySelect) {
+        currentDifficulty = difficultySelect.value;
+    }
+    GAME_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
+    DROPLET_COUNT = DIFFICULTY_SETTINGS[currentDifficulty].dropletCount;
+    WIN_SCORE = DIFFICULTY_SETTINGS[currentDifficulty].winScore;
     score = 0;
     timer = GAME_TIME;
     updateScore();
@@ -181,22 +241,32 @@ function startGame() {
     spawnDroplets();
     clearInterval(gameInterval);
     clearInterval(timerInterval);
+    // Show win condition and difficulty
+    winCondEl.innerHTML = `<strong>Goal:</strong> ${WIN_SCORE} points &nbsp;|&nbsp; <strong>Difficulty:</strong> ${DIFFICULTY_SETTINGS[currentDifficulty].label}`;
     gameInterval = setInterval(gameLoop, 1000 / 60);
     timerInterval = setInterval(() => {
         timer--;
         updateTimer();
-        if (timer <= 0) endGame();
+        if (timer <= 0) endGame(false);
     }, 1000);
 }
 
-function endGame() {
+
+function endGame(won = false) {
     clearInterval(gameInterval);
     clearInterval(timerInterval);
     gameOverEl.style.display = 'flex';
-    finalScoreEl.textContent = `Your Score: ${score}`;
+    if (won) {
+        finalScoreEl.textContent = `You win! 🎉 Final Score: ${score}`;
+    } else {
+        finalScoreEl.textContent = `Your Score: ${score} <br>Goal was: ${WIN_SCORE}`;
+    }
 }
 
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => {
+    setTimeout(resizeCanvas, 200);
+});
 canvas.addEventListener('mousedown', handlePointerDown);
 canvas.addEventListener('mousemove', handlePointerMove);
 canvas.addEventListener('mouseup', handlePointerUp);
@@ -204,8 +274,15 @@ canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
 canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
 canvas.addEventListener('touchend', handlePointerUp, { passive: false });
 
+
 document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
+    // Listen for difficulty change
+    if (difficultySelect) {
+        difficultySelect.addEventListener('change', () => {
+            startGame();
+        });
+    }
     startGame();
 });
 
